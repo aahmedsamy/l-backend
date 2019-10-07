@@ -1,5 +1,5 @@
 """
-WSGI config for ayin project.
+WSGI config for lovers_connections project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ayin.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lovers_connections.settings')
 
 application = get_wsgi_application()
