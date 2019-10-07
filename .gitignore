@@ -90,6 +90,6 @@ db.sqlite3
 /db.sqlite3
 /.idea/
 /venv/
-/media/
-/static/
+/media_/
+/static_/
 /lovers_connections_venv/
