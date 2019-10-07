@@ -8,7 +8,7 @@ from rest_framework.permissions import (IsAuthenticated)
 
 from helpers.numbers import gen_rand_number_between
 
-from .models import (Message, Memory, MessageReply, MemoryReply)
+from .models import (Message, Memory, MemoryReply)
 from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
                           MemoryReplyPostSerializer)
 

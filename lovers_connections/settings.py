@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'emoji_picker',
+    'accounts',
     'memories',
     'rest_framework',
 ]
@@ -83,6 +84,17 @@ DATABASES = {
     }
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'lovers_connections_db',
+        'USER': 'lovers_connections_user',
+        'PASSWORD': 'lovers_connections_password',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -122,11 +134,30 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = STATIC_DIR
 MEDIA_ROOT = MEDIA_DIR
 
-# rest framework
+# Authentication model #####
+AUTH_USER_MODEL = 'accounts.User'
+############################
+
+# REST_FRAMEWORK #################
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
+
+# JWT AUTH #####################
+JWT_AUTH = {
+    "JWT_VERIFY_EXPIRATION": False,
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    'JWT_PAYLOAD_HANDLER': 'accounts.jwt_custom.jwt_payload_handler',
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER': 'accounts.jwt_custom.jwt_get_username_from_payload',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.jwt_custom.jwt_response_payload_handler',
+}
+################################
