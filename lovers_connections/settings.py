@@ -26,7 +26,7 @@ SECRET_KEY = 'mz4ec+1-vw9%oy-hi*6s#qaybger27+c0vj_l-g*@m8nj^*vnn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'loversconnections.ahmedsamy.me']
 
 # Application definition
 
