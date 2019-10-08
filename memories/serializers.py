@@ -28,7 +28,7 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = ["id", 'body', 'replies']
 
     def get_replies(self, obj):
-        replies = MemoryReply.objects.filter(message=obj)
+        replies = MessageReply.objects.filter(message=obj)
         return MessageReplySerializer(replies, many=True).data
 
 
