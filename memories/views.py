@@ -57,9 +57,10 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
     @action(detail=False, methods=['get'])
     def today(self, request):
+        my_love_view = request.GET.get('my_love_view', False)
         try:
             message = self.get_queryset()
-            if not message.seen:
+            if not message.seen and my_love_view.lower() != "true":
                 message.seen = True
                 message.seen_at = timezone.now()
                 message.save()
@@ -110,10 +111,12 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return Response(context)
 
     def retrieve(self, request, pk):
+        my_love_view = request.GET.get('my_love_view', False)
         memory = get_object_or_404(self.get_queryset(), pk=pk)
-        memory.seen = True
-        memory.seen_at = timezone.now()
-        memory.save()
+        if my_love_view.lower() != "true":
+            memory.seen = True
+            memory.seen_at = timezone.now()
+            memory.save()
         serializer = self.get_serializer_class()(memory, context=self.get_serializer_context())
         return Response(serializer.data)
 
