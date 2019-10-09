@@ -5,7 +5,7 @@ from django.conf import settings
 # Create your models here.
 class Message(models.Model):
     body = models.TextField(max_length=1024)
-    to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="message_to")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="message_created_by")
     index = models.BooleanField(default=False)
     seen = models.BooleanField(default=False)
     seen_at = models.DateTimeField(null=True, blank=True)
@@ -29,7 +29,7 @@ class Memory(models.Model):
     image = models.ImageField(upload_to="images")
     created_datetime = models.DateTimeField(auto_now_add=True)
     updated_datetime = models.DateTimeField(auto_now=True)
-    to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="memory_to")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="memory_created_by")
     seen = models.BooleanField(default=False)
     seen_at = models.DateTimeField(null=True, blank=True)
     publish_date = models.DateField()

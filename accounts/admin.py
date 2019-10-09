@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User
+from .models import (User, Lover)
 
 
 # Register your models here.
@@ -8,3 +8,5 @@ from .models import User
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     pass
+
+admin.site.register(Lover)

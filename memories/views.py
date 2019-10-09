@@ -8,17 +8,36 @@ from rest_framework.permissions import (IsAuthenticated)
 
 from helpers.numbers import gen_rand_number_between
 
+from accounts.models import Lover
+
 from .models import (Message, Memory, MemoryReply)
 from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
                           MemoryReplyPostSerializer)
 
 
+def get_viewer(request):
+    my_love_view = request.GET.get('my_love_view', False)
+    if my_love_view.lower() == "true":
+        try:
+            if request.user.gender.lower() == "male":
+                viewer = Lover.objects.get(female=request.user).female
+            else:
+                viewer = Lover.objects.get(male=request.user).male
+        except Lover.DoesNotExist:
+            viewer = None
+    else:
+        viewer = request.user
+    return viewer
+
+
 class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
     def get_queryset(self):
+        viewer = get_viewer(self.request)
         if self.action == "today":
-            queryset = Message.objects.get(to=self.request.user, index=True)
+            queryset = Message.objects.get(created_by=viewer, index=True)
         elif self.action == "list":
-            queryset = Message.objects.filter(to=self.request.user, seen=True)
+            queryset = Message.objects.filter(created_by=viewer, seen=True)
         return queryset
 
     def get_serializer_context(self):
@@ -51,16 +70,18 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
 
 class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
     def get_queryset(self):
+        viewer = get_viewer(self.request)
         if self.action == "random_memory":
-            queryset = Memory.objects.filter(to=self.request.user, publish_date__lt=timezone.now())
+            queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now())
             rand_idx = gen_rand_number_between(0, len(queryset) - 1)
             queryset = queryset[rand_idx]
 
         elif self.action == "today":
-            queryset = Memory.objects.filter(to=self.request.user, publish_date=timezone.now(), visible=True)
+            queryset = Memory.objects.filter(created_by=viewer, publish_date=timezone.now(), visible=True)
         else:
-            queryset = Memory.objects.filter(to=self.request.user, seen=True)
+            queryset = Memory.objects.filter(created_by=viewer, seen=True)
         return queryset
 
     def get_serializer_context(self):
