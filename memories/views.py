@@ -8,7 +8,7 @@ from rest_framework.permissions import (IsAuthenticated)
 
 from helpers.numbers import gen_rand_number_between
 
-from accounts.models import Lover
+from accounts.models import (User, Lover)
 
 from .models import (Message, Memory, MemoryReply)
 from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
@@ -17,16 +17,16 @@ from .serializers import (MessageSerializer, MemorySerializer, MemoryListSeriali
 
 def get_viewer(request):
     my_love_view = request.GET.get('my_love_view', False)
-    if my_love_view.lower() == "true":
-        try:
-            if request.user.gender.lower() == "male":
-                viewer = Lover.objects.get(female=request.user).female
-            else:
-                viewer = Lover.objects.get(male=request.user).male
-        except Lover.DoesNotExist:
-            viewer = None
-    else:
-        viewer = request.user
+    print("my_love_view", my_love_view == "true")
+    try:
+        if request.user.gender == User.MALE:
+            viewer = Lover.objects.get(male=request.user)
+            viewer = viewer.male if my_love_view.lower() == "true" else viewer.female
+        else:
+            viewer = Lover.objects.get(female=request.user)
+            viewer = viewer.female if my_love_view.lower() == "true" else viewer.male
+    except Lover.DoesNotExist:
+        viewer = None
     return viewer
 
 

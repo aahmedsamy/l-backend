@@ -8,9 +8,11 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
+    MALE = "Male"
+    FEMALE = "Female"
     GENDER_CHOICES = (
-        ("MALE", "Male"),
-        ("FEMALE", "Female")
+        (MALE, "Male"),
+        (FEMALE, "Female")
     )
     email = models.EmailField('email address', unique=True, )
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES)
