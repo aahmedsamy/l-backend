@@ -10,7 +10,7 @@ from helpers.numbers import gen_rand_number_between
 
 from accounts.models import (User, Lover)
 
-from .models import (Message, Memory, MemoryReply)
+from .models import (Message, Memory, MemoryReply, MessageReply)
 from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
                           MemoryReplyPostSerializer)
 
@@ -130,7 +130,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
 
 class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
-        queryset = MemoryReply.objects.get(user=self.request.user)
+        queryset = MessageReply.objects.get(user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
