@@ -16,7 +16,7 @@ from .serializers import (MessageSerializer, MemorySerializer, MemoryListSeriali
 
 
 def get_viewer(request):
-    my_love_view = request.GET.get('my_love_view', "False")
+    my_love_view = request.GET.get('my_love_view', "")
     try:
         if request.user.gender == User.MALE:
             viewer = Lover.objects.get(male=request.user)
@@ -62,14 +62,17 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
     @action(detail=False, methods=['get'])
     def today(self, request):
-        my_love_view = request.GET.get('my_love_view', False)
+        my_love_view = request.GET.get('my_love_view', "")
         try:
             message = self.get_queryset()
-            if not message.seen and my_love_view.lower() != "true":
+            if not message:
+                return Response({})
+            if message.seen and my_love_view.lower() != "true":
                 message.seen = True
                 message.seen_at = timezone.now()
                 message.save()
             serializer = self.get_serializer_class()(message)
+            print(serializer.data)
             return Response(serializer.data, 200)
         except Message.DoesNotExist:
             return Response({}, 200)
@@ -87,8 +90,9 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         viewer = get_viewer(self.request)
         if self.action in ["random_memory"]:
             queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now())
-            rand_idx = gen_rand_number_between(0, len(queryset) - 1)
-            queryset = queryset[rand_idx]
+            if queryset:
+                rand_idx = gen_rand_number_between(0, len(queryset) - 1)
+                queryset = queryset[rand_idx]
 
         elif self.action in ["today"]:
             queryset = Memory.objects.filter(created_by=viewer, publish_date=timezone.now(), visible=True)
@@ -102,7 +106,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return {'request': self.request}
 
     def get_serializer_class(self):
-        if self.action in ['list']:
+        if self.action in ['list', 'favourite']:
             return MemoryListSerializer
         if self.action in ['today', 'random_memory', 'retrieve']:
             return MemorySerializer
@@ -122,7 +126,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return Response(context)
 
     def retrieve(self, request, pk):
-        my_love_view = request.GET.get('my_love_view', False)
+        my_love_view = request.GET.get('my_love_view', "")
         memory = get_object_or_404(self.get_queryset(), pk=pk)
         if my_love_view.lower() != "true" and not memory.seen:
             memory.seen = True
@@ -134,9 +138,8 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     @action(detail=False, methods=['get'])
     def random_memory(self, request):
         memories = self.get_queryset()
-        serializer = self.get_serializer_class()(memories, many=True, context=self.get_serializer_context())
-        context = serializer.data
-        return Response(context)
+        serializer = self.get_serializer_class()(memories, context=self.get_serializer_context())
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def favourite(self, requeset):

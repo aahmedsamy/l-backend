@@ -41,7 +41,7 @@ class MessageSerializer(serializers.ModelSerializer):
         if not obj:
             return
         try:
-            FavouriteMessage.objects.get(message=obj, user=self.context.get("request").user)
+            FavouriteMessage.objects.get(message=obj)
             return True
         except FavouriteMessage.DoesNotExist:
             return False
