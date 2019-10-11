@@ -45,7 +45,7 @@ class Memory(models.Model):
 
 
 class FavouriteMessage(models.Model):
-    message = models.ForeignKey(Message, related_name="favourite_message", on_delete=models.PROTECT)
+    message = models.OneToOneField(Message, related_name="favourite_message", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_fav_message")
 
     class Meta:
@@ -53,7 +53,7 @@ class FavouriteMessage(models.Model):
 
 
 class FavouriteMemory(models.Model):
-    memory = models.ForeignKey(Memory, related_name="favourite_memory", on_delete=models.PROTECT)
+    memory = models.OneToOneField(Memory, related_name="favourite_memory", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_fav_memory")
 
     class Meta:
@@ -61,12 +61,12 @@ class FavouriteMemory(models.Model):
 
 
 class MessageReply(models.Model):
-    message = models.ForeignKey(Message, related_name="message_reply", on_delete=models.PROTECT)
+    message = models.OneToOneField(Message, related_name="message_reply", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_message_reply")
     reply = models.TextField(max_length=1024)
 
 
 class MemoryReply(models.Model):
-    memory = models.ForeignKey(Memory, related_name="memory_reply", on_delete=models.PROTECT)
+    memory = models.OneToOneField(Memory, related_name="memory_reply", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_memory_reply")
     reply = models.TextField(max_length=1024)

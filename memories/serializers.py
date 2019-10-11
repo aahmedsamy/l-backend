@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import (Message, Memory, MemoryReply, MessageReply)
+from .models import (Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
 
 
 class MessageReplyPostSerializer(serializers.ModelSerializer):
@@ -21,15 +21,41 @@ class MessageReplySerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    replies = serializers.SerializerMethodField()
+    reply = serializers.SerializerMethodField()
+    is_favourite = serializers.BooleanField()
 
     class Meta:
         model = Message
-        fields = ["id", 'body', 'replies']
+        exclude = ['index', 'created_by']
 
-    def get_replies(self, obj):
-        replies = MessageReply.objects.filter(message=obj)
-        return MessageReplySerializer(replies, many=True).data
+    def get_reply(self, obj):
+        try:
+            reply = MessageReply.objects.get(message=obj)
+            return MessageReplySerializer(reply).data
+        except MessageReply.DoesNotExist:
+            return {}
+
+    def get_is_favourite(self, obj):
+        try:
+            FavouriteMemory.objects.get(memory=obj, user=self.context.get("request").user)
+            return True
+        except FavouriteMemory.DoesNotExist:
+            return False
+
+
+class MessageListSerializer(serializers.ModelSerializer):
+    is_favourite = serializers.BooleanField()
+
+    class Meta:
+        model = Message
+        exclude = ['index', 'created_by']
+
+    def get_is_favourite(self, obj):
+        try:
+            FavouriteMessage.objects.get(memory=obj, user=self.context.get("request").user)
+            return True
+        except FavouriteMessage.DoesNotExist:
+            return False
 
 
 class MemoryReplySerializer(serializers.ModelSerializer):
@@ -39,21 +65,32 @@ class MemoryReplySerializer(serializers.ModelSerializer):
 
 
 class MemorySerializer(serializers.ModelSerializer):
-    replies = serializers.SerializerMethodField()
+    reply = serializers.SerializerMethodField()
+    is_favourite = serializers.BooleanField()
 
     class Meta:
         model = Memory
-        fields = ['id', 'title', 'body', 'image', 'replies']
+        exclude = ['created_by', 'visible']
 
-    def get_replies(self, obj):
-        replies = MemoryReply.objects.filter(memory=obj)
-        return MemoryReplySerializer(replies, many=True).data
+    def get_reply(self, obj):
+        try:
+            reply = MemoryReply.objects.get(memory=obj)
+            return MemoryReplySerializer(reply).data
+        except MessageReply.DoesNotExist:
+            return {}
+
+    def get_is_favourite(self, obj):
+        try:
+            FavouriteMemory.objects.get(memory=obj, user=self.context.get("request").user)
+            return True
+        except FavouriteMemory.DoesNotExist:
+            return False
 
 
 class MemoryListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Memory
-        fields = ['id', 'title', 'image']
+        exclude = ['created_by', 'visible', 'body']
 
 
 class FavouriteMessageSerializer(serializers.ModelSerializer):

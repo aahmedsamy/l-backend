@@ -12,12 +12,11 @@ from accounts.models import (User, Lover)
 
 from .models import (Message, Memory, MemoryReply, MessageReply)
 from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
-                          MemoryReplyPostSerializer)
+                          MemoryReplyPostSerializer, MessageListSerializer)
 
 
 def get_viewer(request):
     my_love_view = request.GET.get('my_love_view', False)
-    print("my_love_view", my_love_view == "true")
     try:
         if request.user.gender == User.MALE:
             viewer = Lover.objects.get(male=request.user)
@@ -34,25 +33,31 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
     def get_queryset(self):
         viewer = get_viewer(self.request)
-        if self.action == "today":
-            queryset = Message.objects.get(created_by=viewer, index=True)
-        elif self.action == "list":
-            queryset = Message.objects.filter(created_by=viewer, seen=True)
+        if self.action in ["today"]:
+            try:
+                queryset = Message.objects.get(created_by=viewer, index=True)
+            except Message.DoesNotExist:
+                queryset = {}
+        elif self.action in ["list", 'retrieve']:
+            queryset = Message.objects.filter(created_by=viewer, created_by_id__lte=timezone.now())
+        elif self.action in ['favourite']:
+            queryset = Message.objects.filter(favourite_message__user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
         return {'request': self.request}
 
     def get_serializer_class(self):
-        return MessageSerializer
+        if self.action in ['retrieve', 'today']:
+            return MessageSerializer
+        if self.action in ['list', 'favourite']:
+            return MessageListSerializer
 
     def get_permissions(self):
         """
         Set actions permissions.
         """
-        permission_classes = []
-        if self.action in ['today', 'list', 'retrieve']:
-            permission_classes = [IsAuthenticated]
+        permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
     @action(detail=False, methods=['get'])
@@ -69,20 +74,28 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         except Message.DoesNotExist:
             return Response({}, 200)
 
+    @action(detail=False, methods=['get'])
+    def favourite(self, requeset):
+        messages = self.get_queryset()
+        serializer = self.get_serializer_class()(messages, many=True)
+        return Response(serializer.data, 200)
+
 
 class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
         viewer = get_viewer(self.request)
-        if self.action == "random_memory":
+        if self.action in ["random_memory"]:
             queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now())
             rand_idx = gen_rand_number_between(0, len(queryset) - 1)
             queryset = queryset[rand_idx]
 
-        elif self.action == "today":
+        elif self.action in ["today"]:
             queryset = Memory.objects.filter(created_by=viewer, publish_date=timezone.now(), visible=True)
-        else:
-            queryset = Memory.objects.filter(created_by=viewer, seen=True)
+        elif self.action in ['list', 'retrieve']:
+            queryset = Memory.objects.filter(created_by=viewer, publish_date__lte=timezone.now(), visible=True)
+        elif self.action in ['favourite']:
+            queryset = Memory.objects.filter(favourite_memory__user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
@@ -113,7 +126,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     def retrieve(self, request, pk):
         my_love_view = request.GET.get('my_love_view', False)
         memory = get_object_or_404(self.get_queryset(), pk=pk)
-        if my_love_view.lower() != "true":
+        if my_love_view.lower() != "true" and not memory.seen:
             memory.seen = True
             memory.seen_at = timezone.now()
             memory.save()
@@ -126,6 +139,12 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         serializer = self.get_serializer_class()(memories, many=True, context=self.get_serializer_context())
         context = serializer.data
         return Response(context)
+
+    @action(detail=False, methods=['get'])
+    def favourite(self, requeset):
+        memories = self.get_queryset()
+        serializer = self.get_serializer_class()(memories, many=True)
+        return Response(serializer.data, 200)
 
 
 class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
