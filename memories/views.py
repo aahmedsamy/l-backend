@@ -39,7 +39,7 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             except Message.DoesNotExist:
                 queryset = {}
         elif self.action in ["list", 'retrieve']:
-            queryset = Message.objects.filter(created_by=viewer)
+            queryset = Message.objects.filter(created_by=viewer, published=True)
         elif self.action in ['favourite']:
             queryset = Message.objects.filter(favourite_message__user=self.request.user)
         return queryset

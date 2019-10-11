@@ -7,11 +7,13 @@ class Message(models.Model):
     body = models.TextField(max_length=1024)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="message_created_by")
     index = models.BooleanField(default=False)
+    published = models.BooleanField(default=False)
     seen = models.BooleanField(default=False)
     seen_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.index:
+            self.published = True
             qs = Message.objects.filter(index=True, created_by=self.created_by)
             qs.update(index=False)
         super().save(*args, **kwargs)
