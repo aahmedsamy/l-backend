@@ -20,6 +20,15 @@ class MemoryAdmin(admin.ModelAdmin):
             return qs.filter(created_by=request.user)
         return qs
 
+    def has_add_permission(self, request):
+        return True
+
+    def has_view_or_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
 
 @admin.register(Message)
 class Message(admin.ModelAdmin):
@@ -36,3 +45,12 @@ class Message(admin.ModelAdmin):
         if not request.user.is_superuser:
             return qs.filter(created_by=request.user)
         return qs
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_view_or_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
