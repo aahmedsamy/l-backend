@@ -12,7 +12,7 @@ class Message(models.Model):
 
     def save(self, *args, **kwargs):
         if self.index:
-            qs = Message.objects.filter(index=True)
+            qs = Message.objects.filter(index=True, created_by=self.created_by)
             qs.update(index=False)
         super().save(*args, **kwargs)
 
