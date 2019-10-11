@@ -67,7 +67,7 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             message = self.get_queryset()
             if not message:
                 return Response({})
-            if message.seen and my_love_view.lower() != "true":
+            if not message.seen and my_love_view.lower() != "true":
                 message.seen = True
                 message.seen_at = timezone.now()
                 message.save()
