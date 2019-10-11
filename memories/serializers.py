@@ -30,17 +30,20 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
     def get_reply(self, obj):
-        try:
-            reply = MessageReply.objects.get(message=obj)
-            return MessageReplySerializer(reply).data
-        except MessageReply.DoesNotExist:
-            return {}
+        if obj:
+            try:
+                reply = MessageReply.objects.get(message=obj)
+                return MessageReplySerializer(reply).data
+            except MessageReply.DoesNotExist:
+                return {}
 
     def get_is_favourite(self, obj):
+        if not obj:
+            return
         try:
-            FavouriteMemory.objects.get(memory=obj, user=self.context.get("request").user)
+            FavouriteMessage.objects.get(message=obj, user=self.context.get("request").user)
             return True
-        except FavouriteMemory.DoesNotExist:
+        except FavouriteMessage.DoesNotExist:
             return False
 
 
@@ -52,6 +55,8 @@ class MessageListSerializer(serializers.ModelSerializer):
         exclude = ['index', 'created_by']
 
     def get_is_favourite(self, obj):
+        if not obj:
+            return
         try:
             FavouriteMessage.objects.get(message=obj)
             return True
@@ -67,20 +72,24 @@ class MemoryReplySerializer(serializers.ModelSerializer):
 
 class MemorySerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
-    is_favourite = serializers.BooleanField()
+    is_favourite = serializers.SerializerMethodField()
 
     class Meta:
         model = Memory
         exclude = ['created_by', 'visible']
 
     def get_reply(self, obj):
+        if not obj:
+            return
         try:
             reply = MemoryReply.objects.get(memory=obj)
             return MemoryReplySerializer(reply).data
-        except MessageReply.DoesNotExist:
+        except MemoryReply.DoesNotExist:
             return {}
 
     def get_is_favourite(self, obj):
+        if not obj:
+            return
         try:
             FavouriteMemory.objects.get(memory=obj)
             return True
