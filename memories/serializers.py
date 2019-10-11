@@ -22,11 +22,12 @@ class MessageReplySerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
-    is_favourite = serializers.BooleanField()
+    is_favourite = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
         exclude = ['index', 'created_by']
+
 
     def get_reply(self, obj):
         try:
@@ -44,7 +45,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class MessageListSerializer(serializers.ModelSerializer):
-    is_favourite = serializers.BooleanField()
+    is_favourite = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
@@ -52,7 +53,7 @@ class MessageListSerializer(serializers.ModelSerializer):
 
     def get_is_favourite(self, obj):
         try:
-            FavouriteMessage.objects.get(memory=obj, user=self.context.get("request").user)
+            FavouriteMessage.objects.get(message=obj)
             return True
         except FavouriteMessage.DoesNotExist:
             return False
@@ -81,7 +82,7 @@ class MemorySerializer(serializers.ModelSerializer):
 
     def get_is_favourite(self, obj):
         try:
-            FavouriteMemory.objects.get(memory=obj, user=self.context.get("request").user)
+            FavouriteMemory.objects.get(memory=obj)
             return True
         except FavouriteMemory.DoesNotExist:
             return False

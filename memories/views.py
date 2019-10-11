@@ -16,7 +16,7 @@ from .serializers import (MessageSerializer, MemorySerializer, MemoryListSeriali
 
 
 def get_viewer(request):
-    my_love_view = request.GET.get('my_love_view', False)
+    my_love_view = request.GET.get('my_love_view', "False")
     try:
         if request.user.gender == User.MALE:
             viewer = Lover.objects.get(male=request.user)
@@ -39,7 +39,7 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
             except Message.DoesNotExist:
                 queryset = {}
         elif self.action in ["list", 'retrieve']:
-            queryset = Message.objects.filter(created_by=viewer, created_by_id__lte=timezone.now())
+            queryset = Message.objects.filter(created_by=viewer)
         elif self.action in ['favourite']:
             queryset = Message.objects.filter(favourite_message__user=self.request.user)
         return queryset
@@ -111,9 +111,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         """
         Set actions permissions.
         """
-        permission_classes = []
-        if self.action in ['today', 'random_memory', 'retrieve', 'list']:
-            permission_classes = [IsAuthenticated]
+        permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
     @action(detail=False, methods=['get'])
@@ -162,9 +160,7 @@ class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         """
         Set actions permissions.
         """
-        permission_classes = []
-        if self.action in ['create', ]:
-            permission_classes = [IsAuthenticated]
+        permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
     def create(self, request):
