@@ -164,7 +164,7 @@ class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mi
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        created_by = Message.objects.get(memory=data['message']).created_by
+        created_by = Message.objects.get(id=data['message']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed to reply this messages"}, 400)
         serializer.save()
@@ -197,7 +197,7 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mix
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        created_by = Memory.objects.get(memory=data['memory']).created_by
+        created_by = Memory.objects.get(id=data['memory']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed to reply this memory"}, 400)
         serializer.save()
@@ -228,7 +228,7 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        created_by = Message.objects.get(message=data['message']).created_by
+        created_by = Message.objects.get(id=data['message']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed add this message to your favourites"}, 400)
         serializer.save()
@@ -259,7 +259,7 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin,
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        created_by = Memory.objects.get(memory=data['memory']).created_by
+        created_by = Memory.objects.get(id=data['memory']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed add this memory to your favourites"}, 400)
 
