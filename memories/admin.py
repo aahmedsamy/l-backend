@@ -8,6 +8,8 @@ from .forms import (MemoryForm, MessageForm)
 class MemoryAdmin(admin.ModelAdmin):
     exclude = ['created_by']
     form = MemoryForm
+    list_display = ['title', 'publish_date', 'visible', 'seen']
+    list_editable = ['visible', 'publish_date']
 
     def save_model(self, request, obj, form, change):
         obj.created_by = request.user
@@ -30,8 +32,11 @@ class MemoryAdmin(admin.ModelAdmin):
 
 @admin.register(Message)
 class Message(admin.ModelAdmin):
-    exclude = ['created_by']
+    exclude = ['created_by', 'published']
     form = MessageForm
+
+    list_display = ['body', 'index', 'seen']
+    list_editable = ['index']
 
     def save_model(self, request, obj, form, change):
         obj.created_by = request.user
