@@ -70,7 +70,7 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     @action(detail=False, methods=['get'])
     def favourite(self, requeset):
         messages = self.get_queryset()
-        serializer = self.get_serializer_class()(messages, many=True, context=self.get_serializer_context()())
+        serializer = self.get_serializer_class()(messages, many=True, context=self.get_serializer_context())
         return Response(serializer.data, 200)
 
 
