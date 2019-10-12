@@ -106,10 +106,10 @@ class MemoryListSerializer(serializers.ModelSerializer):
 class FavouriteMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavouriteMessage
-        fields = ['message']
+        fields = ['message', 'user']
 
 
 class FavouriteMemorySerializer(serializers.ModelSerializer):
     class Meta:
         model = FavouriteMemory
-        fields = ['memory']
+        fields = ['memory', 'user']

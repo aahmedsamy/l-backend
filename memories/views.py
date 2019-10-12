@@ -170,14 +170,14 @@ class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
+        serializer = self.get_serializer_class()(data=data)
+        serializer.is_valid(raise_exception=True)
         try:
             message = MessageReply.objects.get(id=data['memory'])
-            if message.created_by == data['user']:
+            if message.created_by.id == data['user']:
                 return Response({"error": "It is not allowed to reply to your messages"}, 400)
         except MessageReply.DoesNotExist:
             pass
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response("Liked")
@@ -206,14 +206,15 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
+        serializer = self.get_serializer_class()(data=data)
+        serializer.is_valid(raise_exception=True)
         try:
             memory = MemoryReply.objects.get(id=data['memory'])
-            if memory.created_by == data['user']:
+            if memory.created_by.id == data['user']:
                 return Response({"error": "It is not allowed to reply to your memories"}, 400)
         except MemoryReply.DoesNotExist:
             pass
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
+
         serializer.save()
 
         return Response("Replied")
@@ -240,14 +241,15 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet)
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
+        serializer = self.get_serializer_class()(data=data)
+        serializer.is_valid(raise_exception=True)
         try:
             message = Message.objects.get(id=data['message'])
-            if message.created_by == data['user']:
+            if message.created_by.id == data['user']:
                 return Response({"error": "It is not allowed to add your messages to your favourite list"}, 400)
         except Message.DoesNotExist:
             pass
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
+
         serializer.save()
 
         return Response("Message added To your favourites")
@@ -274,14 +276,14 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
+        serializer = self.get_serializer_class()(data=data)
+        serializer.is_valid(raise_exception=True)
         try:
             memory = Memory.objects.get(id=data['memory'])
-            if memory.created_by == data['user']:
+            if memory.created_by.id == data['user']:
                 return Response({"error": "It is not allowed to add your memories to your favourite list"}, 400)
         except Memory.DoesNotExist:
             pass
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response("Memory added To your favourite")
