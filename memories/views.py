@@ -163,7 +163,9 @@ class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         data = request.data.copy()
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
-        if self.request.user.get_my_lover().id != data['user']:
+        serializer.is_valid(raise_exception=True)
+        created_by = Message.objects.get(memory=data['message']).created_by
+        if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed to reply this messages"}, 400)
         serializer.save()
 
@@ -195,7 +197,8 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        if self.request.user.get_my_lover().id != data['user']:
+        created_by = Memory.objects.get(memory=data['memory']).created_by
+        if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed to reply this memory"}, 400)
         serializer.save()
 
@@ -225,7 +228,8 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet)
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        if self.request.user.get_my_lover().id != data['user']:
+        created_by = Message.objects.get(memory=data['message']).created_by
+        if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed add this message to your favourites"}, 400)
         serializer.save()
 
@@ -255,7 +259,8 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        if self.request.user.get_my_lover().id != data['user']:
+        created_by = Memory.objects.get(memory=data['memory']).created_by
+        if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed add this memory to your favourites"}, 400)
 
         serializer.save()
