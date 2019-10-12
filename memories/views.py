@@ -199,7 +199,7 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
             return Response({"error": "It is not allowed to reply this memory"}, 400)
         serializer.save()
 
-        return Response("Replied")
+        return Response({"detail": "Your reply added the memory"})
 
 
 class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -226,10 +226,10 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet)
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
         if self.request.user.get_my_lover().id != data['user']:
-            return Response({"error": "It is not allowed to reply this messages"}, 400)
+            return Response({"error": "It is not allowed add this message to your favourites"}, 400)
         serializer.save()
 
-        return Response("Message added To your favourites")
+        return Response({"detail": "This message added to your favourites."})
 
 
 class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -256,8 +256,8 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
         if self.request.user.get_my_lover().id != data['user']:
-            return Response({"error": "It is not allowed to reply this messages"}, 400)
+            return Response({"error": "It is not allowed add this memory to your favourites"}, 400)
 
         serializer.save()
 
-        return Response("Memory added To your favourite")
+        return Response({"detail": "This memory added to your favourites."})
