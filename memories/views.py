@@ -141,7 +141,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return Response(serializer.data, 200)
 
 
-class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
         queryset = MessageReply.objects.get(user=self.request.user)
         return queryset
@@ -172,7 +172,7 @@ class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         return Response({"detail": "Your reply added the message"})
 
 
-class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
         queryset = MemoryReply.objects.get(user=self.request.user)
         return queryset
@@ -205,7 +205,7 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         return Response({"detail": "Your reply added the memory"})
 
 
-class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class FavouriteMessageViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
         queryset = FavouriteMessage.objects.get(user=self.request.user)
         return queryset
@@ -236,7 +236,7 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet)
         return Response({"detail": "This message added to your favourites."})
 
 
-class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class FavouriteMemoryViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
         queryset = FavouriteMemory.objects.get(user=self.request.user)
         return queryset
