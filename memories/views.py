@@ -31,7 +31,7 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         elif self.action in ["list", 'retrieve']:
             queryset = Message.objects.filter(created_by=viewer, published=True)
         elif self.action in ['favourite']:
-            queryset = Message.objects.filter(favourite_message__user=self.request.user)
+            queryset = Message.objects.filter(favourite_message__user=viewer.get_my_lover())
         return queryset
 
     def get_serializer_context(self):
@@ -92,7 +92,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         elif self.action in ['list', 'retrieve']:
             queryset = Memory.objects.filter(created_by=viewer, publish_date__lte=timezone.now(), visible=True)
         elif self.action in ['favourite']:
-            queryset = Memory.objects.filter(favourite_memory__user=self.request.user)
+            queryset = Memory.objects.filter(favourite_memory__user=viewer.get_my_lover())
         return queryset
 
     def get_serializer_context(self):
