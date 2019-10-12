@@ -70,7 +70,7 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     @action(detail=False, methods=['get'])
     def favourite(self, requeset):
         messages = self.get_queryset()
-        serializer = self.get_serializer_class()(messages, many=True)
+        serializer = self.get_serializer_class()(messages, many=True, context=self.get_serializer_context()())
         return Response(serializer.data, 200)
 
 
@@ -137,7 +137,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     @action(detail=False, methods=['get'])
     def favourite(self, requeset):
         memories = self.get_queryset()
-        serializer = self.get_serializer_class()(memories, many=True)
+        serializer = self.get_serializer_class()(memories, many=True, context=self.get_serializer_context())
         return Response(serializer.data, 200)
 
 
@@ -162,7 +162,7 @@ class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mi
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
-        serializer = self.get_serializer_class()(data=data)
+        serializer = self.get_serializer_class()(data=data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         created_by = Message.objects.get(id=data['message']).created_by
         if created_by.get_my_lover().id != data['user']:
@@ -195,7 +195,7 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mix
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
-        serializer = self.get_serializer_class()(data=data)
+        serializer = self.get_serializer_class()(data=data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         created_by = Memory.objects.get(id=data['memory']).created_by
         if created_by.get_my_lover().id != data['user']:
@@ -226,7 +226,7 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
-        serializer = self.get_serializer_class()(data=data)
+        serializer = self.get_serializer_class()(data=data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         created_by = Message.objects.get(id=data['message']).created_by
         if created_by.get_my_lover().id != data['user']:
@@ -257,7 +257,7 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin,
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
-        serializer = self.get_serializer_class()(data=data)
+        serializer = self.get_serializer_class()(data=data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         created_by = Memory.objects.get(id=data['memory']).created_by
         if created_by.get_my_lover().id != data['user']:
