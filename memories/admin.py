@@ -16,9 +16,7 @@ class MemoryAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
-        if not request.user.is_superuser:
-            return qs.filter(created_by=request.user)
-        return qs
+        return qs.filter(created_by=request.user)
 
     def has_add_permission(self, request):
         return True
@@ -41,10 +39,7 @@ class Message(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-
-        if not request.user.is_superuser:
-            return qs.filter(created_by=request.user)
-        return qs
+        return qs.filter(created_by=request.user)
 
     def has_add_permission(self, request):
         return True
