@@ -8,7 +8,6 @@ from rest_framework.permissions import (IsAuthenticated)
 
 from helpers.numbers import gen_rand_number_between
 
-from accounts.models import (User, Lover)
 from memories.serializers import FavouriteMessageSerializer, FavouriteMemorySerializer
 
 from .models import (Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
@@ -16,24 +15,14 @@ from .serializers import (MessageSerializer, MemorySerializer, MemoryListSeriali
                           MemoryReplyPostSerializer, MessageListSerializer)
 
 
-def get_viewer(request):
-    my_love_view = request.GET.get('my_love_view', "")
-    try:
-        if request.user.gender == User.MALE:
-            viewer = Lover.objects.get(male=request.user)
-            viewer = viewer.male if my_love_view.lower() == "true" else viewer.female
-        else:
-            viewer = Lover.objects.get(female=request.user)
-            viewer = viewer.female if my_love_view.lower() == "true" else viewer.male
-    except Lover.DoesNotExist:
-        viewer = None
-    return viewer
-
-
 class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
-        viewer = get_viewer(self.request)
+        my_love_view = self.request.GET.get('my_love_view', "")
+        viewer = self.request.user.get_my_lover()
+        if my_love_view.lower() == "true":
+            viewer = viewer.get_my_lover()
+
         if self.action in ["today"]:
             try:
                 queryset = Message.objects.get(created_by=viewer, index=True)
@@ -88,7 +77,10 @@ class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     def get_queryset(self):
-        viewer = get_viewer(self.request)
+        my_love_view = self.request.GET.get('my_love_view', "")
+        viewer = self.request.user.get_my_lover()
+        if my_love_view.lower() == "true":
+            viewer = viewer.get_my_lover()
         if self.action in ["random_memory"]:
             queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now())
             if queryset:
@@ -171,16 +163,11 @@ class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         data = request.data.copy()
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
-        try:
-            message = MessageReply.objects.get(id=data['memory'])
-            if message.created_by.id == data['user']:
-                return Response({"error": "It is not allowed to reply to your messages"}, 400)
-        except MessageReply.DoesNotExist:
-            pass
+        if self.request.user.get_my_lover().id != data['user']:
+            return Response({"error": "It is not allowed to reply this messages"}, 400)
         serializer.save()
 
-        return Response("Liked")
+        return Response({"detail": "Your reply added the message"})
 
 
 class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -208,13 +195,8 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        try:
-            memory = MemoryReply.objects.get(id=data['memory'])
-            if memory.created_by.id == data['user']:
-                return Response({"error": "It is not allowed to reply to your memories"}, 400)
-        except MemoryReply.DoesNotExist:
-            pass
-
+        if self.request.user.get_my_lover().id != data['user']:
+            return Response({"error": "It is not allowed to reply this memory"}, 400)
         serializer.save()
 
         return Response("Replied")
@@ -243,13 +225,8 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet)
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        try:
-            message = Message.objects.get(id=data['message'])
-            if message.created_by.id == data['user']:
-                return Response({"error": "It is not allowed to add your messages to your favourite list"}, 400)
-        except Message.DoesNotExist:
-            pass
-
+        if self.request.user.get_my_lover().id != data['user']:
+            return Response({"error": "It is not allowed to reply this messages"}, 400)
         serializer.save()
 
         return Response("Message added To your favourites")
@@ -278,12 +255,9 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         data['user'] = request.user.id
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
-        try:
-            memory = Memory.objects.get(id=data['memory'])
-            if memory.created_by.id == data['user']:
-                return Response({"error": "It is not allowed to add your memories to your favourite list"}, 400)
-        except Memory.DoesNotExist:
-            pass
+        if self.request.user.get_my_lover().id != data['user']:
+            return Response({"error": "It is not allowed to reply this messages"}, 400)
+
         serializer.save()
 
         return Response("Memory added To your favourite")

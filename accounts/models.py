@@ -25,6 +25,11 @@ class User(AbstractUser):
     def __str__(self):
         return self.get_full_name()
 
+    def get_my_lover(self):
+        if self.gender.lower() == "male":
+            return self.male_user.female
+        return self.female_user.male
+
     class Meta:
         verbose_name = "User"
         verbose_name_plural = "Users"
