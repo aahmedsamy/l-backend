@@ -106,9 +106,9 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return {'request': self.request}
 
     def get_serializer_class(self):
-        if self.action in ['list', 'favourite']:
+        if self.action in ['list', 'favourite', 'today']:
             return MemoryListSerializer
-        if self.action in ['today', 'random_memory', 'retrieve']:
+        if self.action in ['random_memory', 'retrieve']:
             return MemorySerializer
 
     def get_permissions(self):
@@ -203,4 +203,4 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response("Liked")
+        return Response("Replied")
