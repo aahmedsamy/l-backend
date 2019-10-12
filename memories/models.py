@@ -5,7 +5,8 @@ from django.conf import settings
 # Create your models here.
 class Message(models.Model):
     body = models.TextField(max_length=1024)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="message_created_by")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                   related_name="message_created_by")
     index = models.BooleanField(default=False)
     published = models.BooleanField(default=False)
     seen = models.BooleanField(default=False)
@@ -50,16 +51,10 @@ class FavouriteMessage(models.Model):
     message = models.OneToOneField(Message, related_name="favourite_message", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_fav_message")
 
-    class Meta:
-        unique_together = ["message", "user"]
-
 
 class FavouriteMemory(models.Model):
     memory = models.OneToOneField(Memory, related_name="favourite_memory", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_fav_memory")
-
-    class Meta:
-        unique_together = ["memory", "user"]
 
 
 class MessageReply(models.Model):

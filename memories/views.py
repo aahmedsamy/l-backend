@@ -9,8 +9,9 @@ from rest_framework.permissions import (IsAuthenticated)
 from helpers.numbers import gen_rand_number_between
 
 from accounts.models import (User, Lover)
+from memories.serializers import FavouriteMessageSerializer, FavouriteMemorySerializer
 
-from .models import (Message, Memory, MemoryReply, MessageReply)
+from .models import (Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
 from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
                           MemoryReplyPostSerializer, MessageListSerializer)
 
@@ -169,6 +170,12 @@ class MessageReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
+        try:
+            message = MessageReply.objects.get(id=data['memory'])
+            if message.created_by == data['user']:
+                return Response({"error": "It is not allowed to reply to your messages"}, 400)
+        except MessageReply.DoesNotExist:
+            pass
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -199,8 +206,82 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
+        try:
+            memory = MemoryReply.objects.get(id=data['memory'])
+            if memory.created_by == data['user']:
+                return Response({"error": "It is not allowed to reply to your memories"}, 400)
+        except MemoryReply.DoesNotExist:
+            pass
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response("Replied")
+
+
+class FavouriteMessageViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    def get_queryset(self):
+        queryset = FavouriteMessage.objects.get(user=self.request.user)
+        return queryset
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+    def get_serializer_class(self):
+        return FavouriteMessageSerializer
+
+    def get_permissions(self):
+        """
+        Set actions permissions.
+        """
+        permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def create(self, request):
+        data = request.data.copy()
+        data['user'] = request.user.id
+        try:
+            message = Message.objects.get(id=data['message'])
+            if message.created_by == data['user']:
+                return Response({"error": "It is not allowed to add your messages to your favourite list"}, 400)
+        except Message.DoesNotExist:
+            pass
+        serializer = self.get_serializer_class()(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response("Message added To your favourites")
+
+
+class FavouriteMemoryViewSets(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    def get_queryset(self):
+        queryset = FavouriteMemory.objects.get(user=self.request.user)
+        return queryset
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+    def get_serializer_class(self):
+        return FavouriteMemorySerializer
+
+    def get_permissions(self):
+        """
+        Set actions permissions.
+        """
+        permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def create(self, request):
+        data = request.data.copy()
+        data['user'] = request.user.id
+        try:
+            memory = Memory.objects.get(id=data['memory'])
+            if memory.created_by == data['user']:
+                return Response({"error": "It is not allowed to add your memories to your favourite list"}, 400)
+        except Memory.DoesNotExist:
+            pass
+        serializer = self.get_serializer_class()(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response("Memory added To your favourite")
