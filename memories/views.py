@@ -143,7 +143,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
 
 class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
-        queryset = MessageReply.objects.get(user=self.request.user)
+        queryset = MessageReply.objects.filter(user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
@@ -167,14 +167,14 @@ class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mi
         created_by = Message.objects.get(id=data['message']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed to reply this messages"}, 400)
-        serializer.save()
+        reply = serializer.save()
 
-        return Response({"detail": "Your reply added the message"})
+        return Response({"reply_id": reply.id})
 
 
 class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
-        queryset = MemoryReply.objects.get(user=self.request.user)
+        queryset = MemoryReply.objects.filter(user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
@@ -200,14 +200,14 @@ class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mix
         created_by = Memory.objects.get(id=data['memory']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed to reply this memory"}, 400)
-        serializer.save()
+        reply = serializer.save()
 
-        return Response({"detail": "Your reply added the memory"})
+        return Response({"reply_id": reply.id})
 
 
 class FavouriteMessageViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
-        queryset = FavouriteMessage.objects.get(user=self.request.user)
+        queryset = FavouriteMessage.objects.filter(user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
@@ -231,14 +231,14 @@ class FavouriteMessageViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin
         created_by = Message.objects.get(id=data['message']).created_by
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed add this message to your favourites"}, 400)
-        serializer.save()
+        favourite = serializer.save()
 
-        return Response({"detail": "This message added to your favourites."})
+        return Response({"favourite_id": favourite.id})
 
 
 class FavouriteMemoryViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     def get_queryset(self):
-        queryset = FavouriteMemory.objects.get(user=self.request.user)
+        queryset = FavouriteMemory.objects.filter(user=self.request.user)
         return queryset
 
     def get_serializer_context(self):
@@ -263,6 +263,6 @@ class FavouriteMemoryViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin,
         if created_by.get_my_lover().id != data['user']:
             return Response({"error": "It is not allowed add this memory to your favourites"}, 400)
 
-        serializer.save()
+        favourite = serializer.save()
 
-        return Response({"detail": "This memory added to your favourites."})
+        return Response({"favourite_id": favourite.id})

@@ -16,18 +16,17 @@ class MemoryReplyPostSerializer(serializers.ModelSerializer):
 
 class MessageReplySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Memory
+        model = MessageReply
         fields = ['id', 'reply']
 
 
 class MessageSerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
-    is_favourite = serializers.SerializerMethodField()
+    favourite_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
         exclude = ['index', 'created_by']
-
 
     def get_reply(self, obj):
         if obj:
@@ -37,29 +36,30 @@ class MessageSerializer(serializers.ModelSerializer):
             except MessageReply.DoesNotExist:
                 return {}
 
-    def get_is_favourite(self, obj):
+    def get_favourite_id(self, obj):
         if not obj:
             return
         try:
-            FavouriteMessage.objects.get(message=obj)
-            return True
+            fav = FavouriteMessage.objects.get(message=obj)
+            return fav.id
         except FavouriteMessage.DoesNotExist:
             return False
 
 
 class MessageListSerializer(serializers.ModelSerializer):
-    is_favourite = serializers.SerializerMethodField()
+    favourite_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
         exclude = ['index', 'created_by']
 
-    def get_is_favourite(self, obj):
+    def get_favourite_id(self, obj):
         if not obj:
             return
         try:
-            FavouriteMessage.objects.get(message=obj)
-            return True
+            fav = FavouriteMessage.objects.get(message=obj)
+            fav = FavouriteMessage.objects.get(message=obj)
+            return fav.id
         except FavouriteMessage.DoesNotExist:
             return False
 
@@ -72,7 +72,7 @@ class MemoryReplySerializer(serializers.ModelSerializer):
 
 class MemorySerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
-    is_favourite = serializers.SerializerMethodField()
+    favourite_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Memory
@@ -87,20 +87,31 @@ class MemorySerializer(serializers.ModelSerializer):
         except MemoryReply.DoesNotExist:
             return {}
 
-    def get_is_favourite(self, obj):
+    def get_favourite_id(self, obj):
         if not obj:
             return
         try:
-            FavouriteMemory.objects.get(memory=obj)
-            return True
+            fav = FavouriteMemory.objects.get(memory=obj)
+            return fav.id
         except FavouriteMemory.DoesNotExist:
             return False
 
 
 class MemoryListSerializer(serializers.ModelSerializer):
+    favourite_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Memory
         exclude = ['created_by', 'visible', 'body']
+
+    def get_favourite_id(self, obj):
+        if not obj:
+            return
+        try:
+            fav = FavouriteMemory.objects.get(memory=obj)
+            return fav.id
+        except FavouriteMemory.DoesNotExist:
+            return False
 
 
 class FavouriteMessageSerializer(serializers.ModelSerializer):
