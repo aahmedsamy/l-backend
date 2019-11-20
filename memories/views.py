@@ -141,9 +141,9 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return {'request': self.request}
 
     def get_serializer_class(self):
-        if self.action in ['list', 'favourite', 'today']:
+        if self.action in ['list', 'favourite', 'today', 'memory_in_this_day']:
             return MemoryListSerializer
-        if self.action in ['memory_in_this_day', 'retrieve']:
+        if self.action in ['retrieve']:
             return MemorySerializer
 
     def get_permissions(self):
