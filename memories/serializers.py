@@ -79,6 +79,7 @@ class MemoryReplySerializer(serializers.ModelSerializer):
 class MemorySerializer(serializers.ModelSerializer):
     reply = serializers.SerializerMethodField()
     favourite_id = serializers.SerializerMethodField()
+    category = CategorySerializer()
 
     class Meta:
         model = Memory
@@ -105,6 +106,7 @@ class MemorySerializer(serializers.ModelSerializer):
 
 class MemoryListSerializer(serializers.ModelSerializer):
     favourite_id = serializers.SerializerMethodField()
+    category = CategorySerializer()
 
     class Meta:
         model = Memory
