@@ -115,9 +115,6 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
 
         if self.action in ["memory_in_this_day"]:
             queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now(), **extra)
-            if queryset:
-                rand_idx = gen_rand_number_between(0, len(queryset) - 1)
-                queryset = queryset[rand_idx]
 
         elif self.action in ["today"]:
             queryset = Memory.objects.filter(
