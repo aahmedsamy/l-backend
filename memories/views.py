@@ -110,9 +110,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
             if year:
                 extra['publish_date__year'] = year
         else:
-            if self.action in ['memory_in_this_day']:
-                extra['publish_date__lt'] = timezone.now()
-            elif self.action in ['list', 'retrieve']:
+            if self.action in ['list', 'retrieve']:
                 extra['publish_date__lte'] = timezone.now()
 
         if self.action in ["memory_in_this_day"]:
