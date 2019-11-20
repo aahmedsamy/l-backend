@@ -173,7 +173,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     @action(detail=False, methods=['get'])
     def memory_in_this_day(self, request):
         memories = self.get_queryset()
-        serializer = self.get_serializer_class()(memories, context=self.get_serializer_context())
+        serializer = self.get_serializer_class()(memories, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
