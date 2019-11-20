@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
@@ -10,9 +11,22 @@ from helpers.numbers import gen_rand_number_between
 
 from memories.serializers import FavouriteMessageSerializer, FavouriteMemorySerializer
 
-from .models import (Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
-from .serializers import (MessageSerializer, MemorySerializer, MemoryListSerializer, MessageReplyPostSerializer,
+from .models import (Category, Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
+from .serializers import (CategorySerializer, MessageSerializer, MemorySerializer, MemoryListSerializer,
+                          MessageReplyPostSerializer,
                           MemoryReplyPostSerializer, MessageListSerializer)
+
+
+class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+    def get_permissions(self):
+        """
+        Set actions permissions.
+        """
+        permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 class MessageViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -81,18 +95,51 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         viewer = self.request.user.get_my_lover()
         if my_love_view.lower() == "true":
             viewer = viewer.get_my_lover()
-        if self.action in ["random_memory"]:
-            queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now())
+
+        day = self.request.GET.get("day", None)
+        month = self.request.GET.get("month", None)
+        year = self.request.GET.get("year", None)
+
+        category_id = self.request.GET.get('cat', None)
+        extra = dict()
+        if day or month or year:
+            if day:
+                extra['publish_date__day'] = day
+            if month:
+                extra['publish_date__month'] = month
+            if year:
+                extra['publish_date__year'] = year
+        else:
+            if self.action in ['memory_in_this_day']:
+                extra['publish_date__lt'] = timezone.now()
+            elif self.action in ['list', 'retrieve']:
+                extra['publish_date__lte'] = timezone.now()
+
+        if self.action in ["memory_in_this_day"]:
+            queryset = Memory.objects.filter(created_by=viewer, publish_date__lt=timezone.now(), **extra)
             if queryset:
                 rand_idx = gen_rand_number_between(0, len(queryset) - 1)
                 queryset = queryset[rand_idx]
 
         elif self.action in ["today"]:
-            queryset = Memory.objects.filter(created_by=viewer, publish_date=timezone.now(), visible=True)
+            queryset = Memory.objects.filter(
+                Q(created_by=viewer, publish_date=timezone.now(), visible=True) | Q(created_by=viewer,
+                                                                                    publish_date__lt=timezone.now(),
+                                                                                    visible=True, seen=False))
         elif self.action in ['list', 'retrieve']:
-            queryset = Memory.objects.filter(created_by=viewer, publish_date__lte=timezone.now(), visible=True)
+            if category_id:
+                queryset = Memory.objects.filter(created_by=viewer, visible=True, category__id=category_id,
+                                                 **extra)
+            else:
+                queryset = Memory.objects.filter(created_by=viewer, visible=True, **extra)
+
         elif self.action in ['favourite']:
-            queryset = Memory.objects.filter(favourite_memory__user=viewer.get_my_lover())
+            if category_id:
+                queryset = Memory.objects.filter(favourite_memory__user=viewer.get_my_lover(),
+                                                 category_id=category_id)
+            else:
+                queryset = Memory.objects.filter(favourite_memory__user=viewer.get_my_lover())
+
         return queryset
 
     def get_serializer_context(self):
@@ -101,7 +148,7 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     def get_serializer_class(self):
         if self.action in ['list', 'favourite', 'today']:
             return MemoryListSerializer
-        if self.action in ['random_memory', 'retrieve']:
+        if self.action in ['memory_in_this_day', 'retrieve']:
             return MemorySerializer
 
     def get_permissions(self):
@@ -129,19 +176,20 @@ class MemoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
-    def random_memory(self, request):
+    def memory_in_this_day(self, request):
         memories = self.get_queryset()
         serializer = self.get_serializer_class()(memories, context=self.get_serializer_context())
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
-    def favourite(self, requeset):
+    def favourite(self, request):
         memories = self.get_queryset()
         serializer = self.get_serializer_class()(memories, many=True, context=self.get_serializer_context())
         return Response(serializer.data, 200)
 
 
-class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin,
+                           viewsets.GenericViewSet):
     def get_queryset(self):
         queryset = MessageReply.objects.filter(user=self.request.user)
         return queryset
@@ -172,7 +220,8 @@ class MessageReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mi
         return Response({"reply_id": reply.id})
 
 
-class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class MemoryReplyViewSets(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin,
+                          viewsets.GenericViewSet):
     def get_queryset(self):
         queryset = MemoryReply.objects.filter(user=self.request.user)
         return queryset

@@ -3,6 +3,18 @@ from django.conf import settings
 
 
 # Create your models here.
+class Category(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+        ordering = ['name']
+
+
 class Message(models.Model):
     body = models.TextField(max_length=1024)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
@@ -27,6 +39,8 @@ class Message(models.Model):
 
 
 class Memory(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True,
+                                 related_name="memory_category")
     title = models.CharField(max_length=200)
     body = models.TextField(max_length=1024)
     image = models.ImageField(upload_to="images")
@@ -44,7 +58,7 @@ class Memory(models.Model):
     class Meta:
         verbose_name = "Memory"
         verbose_name_plural = "Memories"
-        ordering = ['-id']
+        ordering = ['-publish_date']
 
 
 class FavouriteMessage(models.Model):
