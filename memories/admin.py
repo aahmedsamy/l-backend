@@ -86,3 +86,12 @@ class Category(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.name = obj.name.upper()
         super().save_model(request, obj, form, change)
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_view_or_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
