@@ -83,9 +83,20 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class Category(admin.ModelAdmin):
+    exclude = ['lovers']
+
     def save_model(self, request, obj, form, change):
         obj.name = obj.name.upper()
+        obj.lovers = request.user
         super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+        if user.gender == user.MALE:
+            return qs.filter(lovers__male=user)
+        else:
+            return qs.filter(lovers__female=user)
 
     def has_add_permission(self, request):
         return True

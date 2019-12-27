@@ -19,7 +19,13 @@ from .serializers import (CategorySerializer, MessageSerializer, MemorySerialize
 
 class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = CategorySerializer
-    queryset = Category.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.gender == user.MALE:
+            return Category.objects.filter(lovers__male=user)
+        else:
+            return Category.objects.filter(lovers__female=user)
 
     def get_permissions(self):
         """
