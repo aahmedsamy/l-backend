@@ -7,14 +7,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import (IsAuthenticated)
 
-from helpers.numbers import gen_rand_number_between
-
 from memories.serializers import FavouriteMessageSerializer, FavouriteMemorySerializer
 
-from .models import (Category, Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
+from .models import (Category, Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory,
+                     SpecialMessage)
 from .serializers import (CategorySerializer, MessageSerializer, MemorySerializer, MemoryListSerializer,
                           MessageReplyPostSerializer,
-                          MemoryReplyPostSerializer, MessageListSerializer)
+                          MemoryReplyPostSerializer, MessageListSerializer, SpecialMessageSerializer)
 
 
 class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -26,6 +25,24 @@ class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             return Category.objects.filter(lovers__male=user)
         else:
             return Category.objects.filter(lovers__female=user)
+
+    def get_permissions(self):
+        """
+        Set actions permissions.
+        """
+        permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+
+class SpecialMessageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = SpecialMessageSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.gender == user.MALE:
+            return SpecialMessage.objects.filter(lovers__male=user)
+        else:
+            return SpecialMessage.objects.filter(lovers__female=user)
 
     def get_permissions(self):
         """

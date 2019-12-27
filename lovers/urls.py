@@ -22,7 +22,7 @@ from rest_framework.routers import DefaultRouter
 
 from accounts.views import (UserViewSet,)
 from memories.views import (CategoryViewSet, MessageViewSet, MemoryViewSet, MessageReplyViewSets, MemoryReplyViewSets,
-                            FavouriteMessageViewSets, FavouriteMemoryViewSets)
+                            FavouriteMessageViewSets, FavouriteMemoryViewSets, SpecialMessageViewSet)
 
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='users')
@@ -33,6 +33,7 @@ router.register('memory_replies', MemoryReplyViewSets, basename='memory_replies'
 router.register('message_replies', MessageReplyViewSets, basename='message_replies')
 router.register('favourite_messages', FavouriteMessageViewSets, basename='favourite_messages')
 router.register('favourite_memories', FavouriteMemoryViewSets, basename='favourite_memories')
+router.register('special_messages', SpecialMessageViewSet, basename='special_messages')
 
 urlpatterns = [
     path("admin/", admin.site.urls),

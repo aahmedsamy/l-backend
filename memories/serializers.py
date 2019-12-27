@@ -1,11 +1,26 @@
 from rest_framework import serializers
-from .models import (Category, Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory)
+from .models import (Category, Message, Memory, MemoryReply, MessageReply, FavouriteMessage, FavouriteMemory,
+                     SpecialMessageSource, SpecialMessage)
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name']
+
+
+class SpecialMessageSourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SpecialMessageSource
+        fields = ['id', 'source']
+
+
+class SpecialMessageSerializer(serializers.ModelSerializer):
+    source = SpecialMessageSourceSerializer()
+
+    class Meta:
+        model = SpecialMessage
+        exclude = ['created_by']
 
 
 class MessageReplyPostSerializer(serializers.ModelSerializer):

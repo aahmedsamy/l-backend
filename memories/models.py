@@ -84,3 +84,24 @@ class MemoryReply(models.Model):
     memory = models.OneToOneField(Memory, related_name="memory_reply", on_delete=models.PROTECT)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_memory_reply")
     reply = models.TextField(max_length=1024)
+
+
+class SpecialMessageSource(models.Model):
+    lovers = models.ForeignKey(Lover, on_delete=models.CASCADE)
+    source = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.source
+
+    class Meta:
+        verbose_name = "Special Message source"
+        verbose_name_plural = "Special Message sources"
+        ordering = ['source']
+
+
+class SpecialMessage(models.Model):
+    body = models.TextField(max_length=1024)
+    image = models.ImageField(upload_to="images")
+    source = models.ForeignKey(SpecialMessageSource, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                   related_name="special_message_created_by")
