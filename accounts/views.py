@@ -37,10 +37,10 @@ class UserViewSet(viewsets.GenericViewSet):
 
     def auth(self, serializer):
         kwargs = dict()
-        if '@' in serializer.data['phone_or_email']:
-            kwargs['email'] = serializer.data['phone_or_email']
+        if '@' in serializer.data['username_or_email']:
+            kwargs['email'] = serializer.data['username_or_email']
         else:
-            kwargs['username'] = serializer.data['phone_or_email']
+            kwargs['username'] = serializer.data['username_or_email']
 
         try:
             user = User.objects.get(**kwargs)

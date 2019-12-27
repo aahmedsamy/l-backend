@@ -38,14 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'emoji_picker',
+    'rest_framework',
+    'corsheaders',
     'accounts',
     'memories',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -118,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'EET'
+TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
 
@@ -145,7 +147,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
@@ -160,4 +162,9 @@ JWT_AUTH = {
     'JWT_PAYLOAD_GET_USERNAME_HANDLER': 'accounts.jwt_custom.jwt_get_username_from_payload',
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.jwt_custom.jwt_response_payload_handler',
 }
+################################
+
+# CORS HEADERS #################
+ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = True
 ################################

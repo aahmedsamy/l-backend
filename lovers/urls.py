@@ -21,14 +21,18 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 
 from accounts.views import (UserViewSet,)
-from memories.views import (MessageViewSet, MemoryViewSet, MessageReplyViewSets, MemoryReplyViewSets)
+from memories.views import (CategoryViewSet, MessageViewSet, MemoryViewSet, MessageReplyViewSets, MemoryReplyViewSets,
+                            FavouriteMessageViewSets, FavouriteMemoryViewSets)
 
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='users')
+router.register('categories', CategoryViewSet, base_name='categories')
 router.register('messages', MessageViewSet, basename='messages')
 router.register('memories', MemoryViewSet, basename='memories')
 router.register('memory_replies', MemoryReplyViewSets, basename='memory_replies')
 router.register('message_replies', MessageReplyViewSets, basename='message_replies')
+router.register('favourite_messages', FavouriteMessageViewSets, basename='favourite_messages')
+router.register('favourite_memories', FavouriteMemoryViewSets, basename='favourite_memories')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
