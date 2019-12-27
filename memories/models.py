@@ -1,9 +1,12 @@
 from django.db import models
 from django.conf import settings
 
+from accounts.models import Lover
+
 
 # Create your models here.
 class Category(models.Model):
+    lovers = models.ForeignKey(Lover, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
