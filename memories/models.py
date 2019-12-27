@@ -101,7 +101,12 @@ class SpecialMessageSource(models.Model):
 
 class SpecialMessage(models.Model):
     body = models.TextField(max_length=1024)
-    image = models.ImageField(upload_to="images")
+    image = models.ImageField(upload_to="images", null=True, blank=True)
     source = models.ForeignKey(SpecialMessageSource, on_delete=models.CASCADE)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                   related_name="special_message_created_by")
+    lovers = models.ForeignKey(Lover, on_delete=models.CASCADE,
+                               related_name="special_message_lovers")
+
+    def __str__(self):
+        if len(self.body) > 50:
+            return f"{self.source}: {self.body[:100]}..."
+        return f"{self.source}: {self.body}"

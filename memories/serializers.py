@@ -20,7 +20,7 @@ class SpecialMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SpecialMessage
-        exclude = ['created_by']
+        exclude = ['lovers']
 
 
 class MessageReplyPostSerializer(serializers.ModelSerializer):

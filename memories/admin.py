@@ -41,19 +41,17 @@ class MemoryAdmin(admin.ModelAdmin):
 
 @admin.register(SpecialMessage)
 class SpecialMessageAdmin(admin.ModelAdmin):
-    exclude = ['created_by']
+    exclude = ['lovers']
     form = MessageForm
-    list_display = ['body', 'source']
-    list_editable = ['source']
 
     def save_model(self, request, obj, form, change):
-        obj.created_by = request.user
+        obj.lovers = get_lover_instance(request.user)
         super().save_model(request, obj, form, change)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
 
-        return qs.filter(created_by=request.user)
+        return qs.filter(lovers=get_lover_instance(request.user))
 
     def has_add_permission(self, request):
         return True
